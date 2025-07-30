@@ -1,0 +1,16 @@
+# Entornos virtuales
+venv/
+
+# Archivos de base de datos
+**/*.db
+
+# Archivos de actualización pesados
+actualizaciones/*.txt
+actualizaciones/*.csv
+actualizaciones/*.xlsx
+
+# Archivos temporales y de respaldo
+* - copia*.*
+*.bak
+*.tmp
+
