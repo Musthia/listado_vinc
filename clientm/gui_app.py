@@ -549,7 +549,7 @@ class Frame(tk.Frame):
         self.boton_guardar.bind("<Return>", lambda event: self.guardar_y_volver(event)) 
 
         #Botones Cancelar
-        self.entry_denominacion.focus_set()
+        self.entry_n_cuenta.focus_set()
         self.boton_cancelar = tk.Button(self, text = "Cancelar", command = self.desabilitar_campos)
         self.boton_cancelar.config(width=12, font=("Arial",10, "bold"), fg = "#DAD5D6", bg="red",cursor = "hand2", activebackground= "#FFFFFF")
         self.boton_cancelar.grid(row=13, column=2)
@@ -986,11 +986,13 @@ class Frame(tk.Frame):
 
         self.entry_cuil_cuit.delete(0, tk.END)
         self.entry_id_cliente.delete(0, tk.END)
+        self.entry_denominacion.delete(0, tk.END)
+        self.entry_n_cuenta.delete(0, tk.END)
 
         self.registrar_ingreso()  # Llama a la función para guardar el respaldo
 
         # Volver al campo entry_nombre
-        self.boton_guardar.focus_set()
+        self.entry_n_cuenta.focus_set()
         #self.habilitar_campos()
 
     def registrar_ingreso(self):
@@ -1022,7 +1024,7 @@ class Frame(tk.Frame):
         self.mi_caja.set("")
 
         # Enfoca el cursor en el campo "denominación"
-        self.entry_cuil_cuit.focus_set()
+        self.entry_n_cuenta.focus_set()
 
         #self.mi_consultar.set("")
         self.entry_n_cuenta.config(state="normal") 
@@ -1177,7 +1179,7 @@ class Frame(tk.Frame):
         boton_filtrar_fecha.config(width=20, font=("Arial",10, "bold"), fg = "#DAD5D6", bg="purple",cursor = "hand2", activebackground= "#35BD6D")
 
         boton_copia_seguridad = tk.Button(self, text="COPIA DE SUEGURIDAD", command=self.copia_seguridad)
-        boton_copia_seguridad.grid(row=16, column=4, columnspan=5, pady=10)
+        boton_copia_seguridad.grid(row=16, column=2, columnspan=5, pady=10)
         boton_copia_seguridad.config(width=20, font=("Arial",10, "bold"), fg = "#e90000", bg="green",cursor = "hand2", activebackground= "#35BD6D")
 
     def copia_seguridad(self, event=None):
