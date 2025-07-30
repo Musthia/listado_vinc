@@ -153,7 +153,7 @@ def abrir_ventana_secundaria():
         ventana_secundaria.iconbitmap("img/datcorr.ico")
         ventana_secundaria.geometry("550x350")
         ventana_secundaria.resizable(0,0)
-        ventana_secundaria.config(bg= "#276164")
+        ventana_secundaria.config(bg= "#123584")
         
         # Realiza una consulta para obtener la lista de usuarios desde la tabla Usuarios_database
         cursor.execute("SELECT * FROM Usuarios_database")
@@ -220,7 +220,7 @@ def editar_usuario(treeview, cursor, conn):
     editar_ventana.geometry("300x300")
     editar_ventana.iconbitmap("img/datcorr.ico")
     editar_ventana.resizable(0,0)
-    editar_ventana.config(bg= "#276164")
+    editar_ventana.config(bg= "#123584")
 
     # Etiquetas y entradas para editar los datos del usuario
     nombre_label = tk.Label(editar_ventana, text="Nombre:")
@@ -362,7 +362,7 @@ class Frame(tk.Frame):
         self.root = root
         self.pack(fill=tk.BOTH, expand=True)
         self.pack()
-        self.config(bg= "#276164")
+        self.config(bg= "#123584")
         self.id_Catastro_database = None
 
         self.campos_Catastro_database()
@@ -1223,12 +1223,12 @@ class Frame(tk.Frame):
         ventana_carga.grab_set()  # Establece la ventana como modal
         ventana_carga.iconbitmap("img/datcorr.ico")
         ventana_carga.resizable(0,0)
-        ventana_carga.config(bg= "#276164")
+        ventana_carga.config(bg= "#123584")
 
         self.lista_Catastro_database = listar()
 
         # Labels y entradas para los campos
-        campos = ["Denominación", "Codigo", "Lote", "Caja", "Registro"]
+        campos = ["N° de Cuenta", "Denominación", "Cuil/Cuit", "Lote", "Id de Cliente", "Caja", "Registro"]
         entradas = {}
 
         for i, campo in enumerate(campos):
@@ -1271,9 +1271,9 @@ class Frame(tk.Frame):
 
             # Inserción en la tabla
             cursor.execute("""
-                INSERT INTO Catastro_database (Denominacion, Zona, Lote, Caja, Registro)
-                VALUES (?, ?, ?, ?, ?)
-            """, (datos["Denominación"], datos["Codigo"], datos["Lote"], datos["Caja"], datos["Registro"]))
+                INSERT INTO Catastro_database (N_ cuenta, Denominacion, Cuil_cuit, Lote, Id_cliente, Caja, Registro)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            """, (datos["N_cuenta"], datos["Denominacion"], datos["Cuil_cuit"], datos["Lote"], datos["Id_cliente"],  datos["Caja"], datos["Registro"]))
             conexion.commit()
             conexion.close()
 
@@ -1298,11 +1298,14 @@ class Frame(tk.Frame):
             values = item["values"]
 
             # Validar la cantidad de columnas y asignar valores
-            self.denominacion_Catastro_database = values[0] if len(values) > 0 else ""
-            self.zona_Catastro_database = values[1] if len(values) > 1 else ""
-            self.lote_Catastro_database = values[2] if len(values) > 2 else ""
-            self.caja_Catastro_database = values[3] if len(values) > 3 else ""
-            self.registro_Catastro_database = values[4] if len(values) > 4 else ""
+
+            self.n_cuenta_Catastro_database = values[0] if len(values) > 0 else ""
+            self.denominacion_Catastro_database = values[1] if len(values) > 1 else ""
+            self.cuil_cuit_Catastro_database = values[2] if len(values) > 2 else ""
+            self.lote_Catastro_database = values[3] if len(values) > 3 else ""
+            self.id_cliente_Catastro_database = values[4] if len(values) > 4 else ""
+            self.caja_Catastro_database = values[5] if len(values) > 5 else ""
+            self.registro_Catastro_database = values[6] if len(values) > 6 else ""
 
             # Crear la ventana secundaria para la edición
             ventana_edicion = tk.Toplevel(self)
@@ -1312,60 +1315,77 @@ class Frame(tk.Frame):
             ventana_edicion.grab_set()  # Bloquear interacción con la ventana principal        
 
             # Crear labels y entries en la ventana secundaria
-            tk.Label(ventana_edicion, text="Denominación:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+
+            tk.Label(ventana_edicion, text="N° DE CUENTA:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+            entry_n_cuenta = tk.Entry(ventana_edicion, width=30)
+            entry_n_cuenta.grid(row=0, column=1, padx=10, pady=5)
+            entry_n_cuenta.insert(0, self.n_cuenta_Catastro_database)
+            entry_n_cuenta.focus_set()
+            entry_n_cuenta.bind("<Return>", lambda event: entry_denominacion.focus_set())
+
+            tk.Label(ventana_edicion, text="Denominación:").grid(row=1, column=0, padx=10, pady=5, sticky="w")
             entry_denominacion = tk.Entry(ventana_edicion, width=30)
-            entry_denominacion.grid(row=0, column=1, padx=10, pady=5)
+            entry_denominacion.grid(row=1, column=1, padx=10, pady=5)
             entry_denominacion.insert(0, self.denominacion_Catastro_database)
             entry_denominacion.focus_set()
-            entry_denominacion.bind("<Return>", lambda event: entry_zona.focus_set())
+            entry_denominacion.bind("<Return>", lambda event: entry_cuil_cuit.focus_set())
 
-            tk.Label(ventana_edicion, text="Zona:").grid(row=1, column=0, padx=10, pady=5, sticky="w")
-            entry_zona = tk.Entry(ventana_edicion, width=30)
-            entry_zona.grid(row=1, column=1, padx=10, pady=5)
-            entry_zona.insert(0, self.zona_Catastro_database)
-            entry_zona.bind("<Return>", lambda event: entry_lote.focus_set())
+            tk.Label(ventana_edicion, text="CUIL/CUIT:").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+            entry_cuil_cuit = tk.Entry(ventana_edicion, width=30)
+            entry_cuil_cuit.grid(row=2, column=1, padx=10, pady=5)
+            entry_cuil_cuit.insert(0, self.cuil_cuit_Catastro_database)
+            entry_cuil_cuit.bind("<Return>", lambda event: entry_lote.focus_set())
 
-            tk.Label(ventana_edicion, text="Lote:").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+            tk.Label(ventana_edicion, text="Lote:").grid(row=3, column=0, padx=10, pady=5, sticky="w")
             entry_lote = tk.Entry(ventana_edicion, width=30)
-            entry_lote.grid(row=2, column=1, padx=10, pady=5)
+            entry_lote.grid(row=3, column=1, padx=10, pady=5)
             entry_lote.insert(0, self.lote_Catastro_database)
-            entry_lote.bind("<Return>", lambda event: entry_caja.focus_set())
+            entry_lote.bind("<Return>", lambda event: entry_id_cliente.focus_set())
 
-            tk.Label(ventana_edicion, text="Caja:").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+            tk.Label(ventana_edicion, text="ID DE CLIENTE:").grid(row=4, column=0, padx=10, pady=5, sticky="w")
+            entry_id_cliente = tk.Entry(ventana_edicion, width=30)
+            entry_id_cliente.grid(row=4, column=1, padx=10, pady=5)
+            entry_id_cliente.insert(0, self.id_cliente_Catastro_database)
+            entry_id_cliente.focus_set()
+            entry_id_cliente.bind("<Return>", lambda event: entry_caja.focus_set())
+
+            tk.Label(ventana_edicion, text="Caja:").grid(row=5, column=0, padx=10, pady=5, sticky="w")
             entry_caja = tk.Entry(ventana_edicion, width=30)
-            entry_caja.grid(row=3, column=1, padx=10, pady=5)
+            entry_caja.grid(row=5, column=1, padx=10, pady=5)
             entry_caja.insert(0, self.caja_Catastro_database)
             entry_caja.bind("<Return>", lambda event: boton_guardar.focus_set())
 
             tk.Label(ventana_edicion, text="Registro: NO editable").grid(row=4, column=0, padx=10, pady=5, sticky="w")
             entry_registro = tk.Entry(ventana_edicion, width=30)
-            entry_registro.grid(row=4, column=1, padx=10, pady=5)
+            entry_registro.grid(row=6, column=1, padx=10, pady=5)
             entry_registro.insert(0, self.registro_Catastro_database)
             entry_registro.config(state="disabled")
 
             # Función para guardar los cambios en la base de datos
             def guardar_cambios_manuales(event=None):
                 try:
+                    n_cuenta = entry_n_cuenta.get().strip()
                     denominacion = entry_denominacion.get().strip()
-                    zona = entry_zona.get().strip()
+                    cuil_cuit = entry_cuil_cuit.get().strip()
                     lote = entry_lote.get().strip()
+                    id_cliente = entry_id_cliente.get().strip()
                     caja = entry_caja.get().strip()
                     registro = entry_registro.get().strip()
 
                     # Actualizar en la base de datos
                     query = """
                         UPDATE Catastro_database
-                        SET denominacion = ?, zona = ?, lote = ?, caja = ?
+                        SET n_cuenta = ?, denominacion = ?, cuil_cuit = ?, lote = ?, id_cliente = ?, caja = ?
                         WHERE ID_Catastro_database = ?
                     """
                     conexion = sqlite3.connect("database/Datcorr.db")
                     cursor = conexion.cursor()
-                    cursor.execute(query, (denominacion, zona, lote, caja,  self.id_Catastro_database))
+                    cursor.execute(query, (n_cuenta, denominacion, cuil_cuit, lote, id_cliente, caja,  self.id_Catastro_database))
                     conexion.commit()
                     conexion.close()
 
                     # Actualizar en el Treeview
-                    self.tabla.item(seleccion, values=(denominacion, zona, lote, caja))
+                    self.tabla.item(seleccion, values=(n_cuenta, denominacion, cuil_cuit, lote, id_cliente, caja))
 
                     messagebox.showinfo("Edición exitosa", "Los cambios se guardaron correctamente.")
                     ventana_edicion.destroy()
@@ -1438,13 +1458,11 @@ class Frame(tk.Frame):
         cursor = conn.cursor()
 
         try:
-            cursor.execute("SELECT * FROM Catastro_database WHERE DENOMINACION LIKE ? OR DEPARTAMENTO LIKE ? OR n_cuenta LIKE ? OR ESTADO LIKE ? OR CARATULA LIKE ? OR INGRESO LIKE ? OR EGRESO LIKE ? OR ULTIMO_MOVIMIENTO LIKE ? OR N_LOTE LIKE ? OR MINUTA LIKE ? OR PLANO LIKE ? OR FICHA LIKE ? OR ZONA like ? OR CAJA LIKE ? OR REGISTRO LIKE ? ",
+            cursor.execute("SELECT * FROM Catastro_database WHERE N_CUENTA LIKE ? OR DENOMINACION LIKE ? OR CUIL_CUIT LIKE ? OR N_LOTE LIKE ? OR ID_CLIENTE like ? OR CAJA LIKE ? OR REGISTRO LIKE ? ",
                            
                        (f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%"
                         , f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%"
-                        , f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%"
-                        , f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%", 
-                        f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%", f"%{valor_Catastro_database}%"))
+                        , f"%{valor_Catastro_database}%"))
             rows = cursor.fetchall()
 
             if len(rows) > 0:
@@ -1482,7 +1500,7 @@ class Frame(tk.Frame):
     
         # Crear tabla con estilo personalizado
         treeview_resultados = ttk.Treeview(frame_superior,
-                                   columns=("ID","N° DE CUENTA", "DENOMINACION", "CUIL_CUIT", "LOTE", "ID DE CLIENTE", "CAJA", "REGISTRO"),
+                                   columns=("ID", "N° DE CUENTA", "DENOMINACION", "CUIL_CUIT", "LOTE", "ID DE CLIENTE", "CAJA", "REGISTRO"),
                                    show="headings",
                                    style="Custom.Treeview")
 
@@ -1664,12 +1682,9 @@ class Frame(tk.Frame):
             # Obtener el ID del resultado seleccionado
             id_resultado = treeview_resultados.item(selection[0])["values"][0]
             n_cuenta_resultado = treeview_resultados.item(selection[0], "values")[1]
-            denominacion_resultado = treeview_resultados.item(selection[0], "values")[2]
-            
-            cuil_cuit_resultado = treeview_resultados.item(selection[0], "values")[3]
-            
-            n_lote_resultado = treeview_resultados.item(selection[0], "values")[4]
-           
+            denominacion_resultado = treeview_resultados.item(selection[0], "values")[2]            
+            cuil_cuit_resultado = treeview_resultados.item(selection[0], "values")[3]            
+            n_lote_resultado = treeview_resultados.item(selection[0], "values")[4]           
             id_cliente_resultado = treeview_resultados.item(selection[0], "values")[5]
             caja_resultado = treeview_resultados.item(selection[0], "values")[6]
             registro_resultado = treeview_resultados.item(selection[0], "values")[7]
@@ -1707,7 +1722,7 @@ class Frame(tk.Frame):
 
         ventana_edicion = tk.Toplevel(self)
         ventana_edicion.title("Editar Datos")
-        ventana_edicion.geometry("700x360")
+        ventana_edicion.geometry("550x360")
         ventana_edicion.iconbitmap("img/Datcorr.ico")
         ventana_edicion.resizable(0,0)
         ventana_edicion.config(bg="#676767")
@@ -1724,48 +1739,48 @@ class Frame(tk.Frame):
 
         self.label_n_cuenta_resultado = tk.Label(ventana_edicion, text="N° DE CUENTA:")
         self.label_n_cuenta_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_n_cuenta_resultado.grid(row=3, column=0, padx=5, pady=5)
+        self.label_n_cuenta_resultado.grid(row=1, column=0, padx=5, pady=5)
 
         self.label_denominacion_resultado = tk.Label(ventana_edicion, text="Denominacion:")
         self.label_denominacion_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_denominacion_resultado.grid(row=1, column=0, padx=5, pady=5)
+        self.label_denominacion_resultado.grid(row=2, column=0, padx=5, pady=5)
 
         self.label_cuil_cuit_resultado = tk.Label(ventana_edicion, text="CUIL/CUIT:")
         self.label_cuil_cuit_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_cuil_cuit_resultado.grid(row=2, column=0, padx=5, pady=5)
+        self.label_cuil_cuit_resultado.grid(row=3, column=0, padx=5, pady=5)
 
         self.label_n_lote_resultado = tk.Label(ventana_edicion, text="N° DE LOTE:")
         self.label_n_lote_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_n_lote_resultado.grid(row=5, column=0, padx=5, pady=5)
+        self.label_n_lote_resultado.grid(row=4, column=0, padx=5, pady=5)
 
         self.label_id_cliente_resultado = tk.Label(ventana_edicion, text="ID DE CLIENTE:")
         self.label_id_cliente_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_id_cliente_resultado.grid(row=6, column=3, padx=5, pady=5)
+        self.label_id_cliente_resultado.grid(row=5, column=0, padx=5, pady=5)
 
         self.label_caja_resultado = tk.Label(ventana_edicion, text="Caja:")
         self.label_caja_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_caja_resultado.grid(row=7, column=3, padx=5, pady=5)
+        self.label_caja_resultado.grid(row=6, column=0, padx=5, pady=5)
 
         self.label_registro_resultado = tk.Label(ventana_edicion, text="Registro no editable:")
         self.label_registro_resultado.config(font=("Linkin Park ExtraBold", 8), bg= "#676767") 
-        self.label_registro_resultado.grid(row=8, column=3, padx=5, pady=5)
+        self.label_registro_resultado.grid(row=7, column=0, padx=5, pady=5)
 
         self.entry_n_cuenta_resultado = tk.Entry(ventana_edicion)
         self.entry_n_cuenta_resultado.config(width= 25, font = ("Arial", 10, "bold"))
-        self.entry_n_cuenta_resultado.grid(row=3, column=1)
+        self.entry_n_cuenta_resultado.grid(row=1, column=1)
         self.entry_n_cuenta_resultado.insert(tk.END, n_cuenta_resultado)
         self.entry_n_cuenta_resultado.bind("<Return>", lambda event: self.entry_denominacion_resultado.focus())
 
         self.entry_denominacion_resultado = tk.Entry(ventana_edicion)
         self.entry_denominacion_resultado.config(width= 25, font = ("Arial", 10, "bold"))
-        self.entry_denominacion_resultado.grid(row=1, column=1)
+        self.entry_denominacion_resultado.grid(row=2, column=1)
         self.entry_denominacion_resultado.insert(tk.END, denominacion_resultado)
         self.entry_denominacion_resultado.focus_set()
         self.entry_denominacion_resultado.bind("<Return>", lambda event: self.entry_cuil_cuit_resultado.focus())
 
         self.entry_cuil_cuit_resultado = tk.Entry(ventana_edicion)
         self.entry_cuil_cuit_resultado.config(width= 25, font = ("Arial", 10, "bold"))
-        self.entry_cuil_cuit_resultado.grid(row=2, column=1)
+        self.entry_cuil_cuit_resultado.grid(row=3, column=1)
         self.entry_cuil_cuit_resultado.insert(tk.END, cuil_cuit_resultado)
         self.entry_cuil_cuit_resultado.bind("<Return>", lambda event: self.entry_n_lote_resultado.focus())        
 
@@ -1783,13 +1798,13 @@ class Frame(tk.Frame):
 
         self.entry_caja_resultado = tk.Entry(ventana_edicion)
         self.entry_caja_resultado.config(width= 25, font = ("Arial", 10, "bold"))
-        self.entry_caja_resultado.grid(row=7, column=4)
+        self.entry_caja_resultado.grid(row=6, column=1)
         self.entry_caja_resultado.insert(tk.END, caja_resultado)
         self.entry_caja_resultado.bind("<Return>", lambda event: self.button_guardar.focus())
 
         self.entry_resgistro_resultado = tk.Entry(ventana_edicion)
         self.entry_resgistro_resultado.config(width= 25, font = ("Arial", 10, "bold"))
-        self.entry_resgistro_resultado.grid(row=8, column=4)
+        self.entry_resgistro_resultado.grid(row=7, column=1)
         self.entry_resgistro_resultado.insert(tk.END, registro_resultado)      
 
         # Agrega un botón para guardar los cambios
@@ -1809,7 +1824,7 @@ class Frame(tk.Frame):
                 self.entry_caja_resultado.get()
             ))
 
-        self.button_guardar.grid(row=14, column=3, padx=5, pady=5)
+        self.button_guardar.grid(row=1, column=3, padx=5, pady=5)
         self.button_guardar.config(width=10, font=("Arial", 9, "bold"), fg="black", bg="#00aae4", cursor="hand2", activebackground="#FFFFFF")
 
         # También para la tecla Enter, desactiva si es necesario manejarlo igual:
@@ -1826,13 +1841,13 @@ class Frame(tk.Frame):
 
         # 2. Botón "Guardar en Libro de Actas"
         self.button_guardar_libro = tk.Button(ventana_edicion, text="¡Guardar en \nLibro de Actas!", command=self.guardar_en_libro_de_actas)
-        self.button_guardar_libro.grid(row=14, column=4, padx=5, pady=5)
+        self.button_guardar_libro.grid(row=2, column=3, padx=5, pady=5)
         self.button_guardar_libro.config(width=11, font=("Arial", 9, "bold"), fg="black", bg="red", cursor="hand2", activebackground="#FFFFFF")
 
         #Botones Guardar dato y  libro
         self.boton_guardar_001 = tk.Button(ventana_edicion, text="Guardar Datos \n& \nGuardar en Libro", command=lambda: self.guardar_cambios_y_libro_de_actas(ventana_edicion))
         self.boton_guardar_001.config(width=15, font=("Arial",10, "bold"), fg = "black", bg="#00aae4",cursor = "hand2", activebackground= "#FFFFFF")
-        self.boton_guardar_001.grid(row=14, column=0, padx=5, pady=5)
+        self.boton_guardar_001.grid(row=3, column=3, padx=5, pady=5)
 
         # También asegurás que ENTER ejecute ambas funciones
         self.boton_guardar_001.bind("<Return>", lambda event: self.guardar_cambios_y_libro_de_actas(ventana_edicion)) 
@@ -1875,7 +1890,7 @@ class Frame(tk.Frame):
             cursor1 = conn1.cursor()
             cursor1.execute("""
                 UPDATE Catastro_database SET 
-                    N_CUENTA = ?
+                    N_CUENTA = ?,
                     DENOMINACION = ?, 
                     CUIL_CUIT = ?, 
                     N_LOTE = ?,
@@ -1900,9 +1915,9 @@ class Frame(tk.Frame):
 
         # Guardar en Libro_de_actas
         try:
-            if not os.path.exists("C:/Libro de Actas"):
-                os.makedirs("C:/Libro de Actas")
-            conn2 = sqlite3.connect("C:/Libro de Actas/Libro_de_actas.db")
+            if not os.path.exists("/Libro de Actas"):
+                os.makedirs("/Libro de Actas")
+            conn2 = sqlite3.connect("/Libro de Actas/Libro_de_actas.db")
             cursor2 = conn2.cursor()
             cursor2.execute("""
                 CREATE TABLE IF NOT EXISTS Libro_de_actas_database (
@@ -1918,7 +1933,7 @@ class Frame(tk.Frame):
             """)
             cursor2.execute("""
                 INSERT INTO Libro_de_actas_database (
-                    n_cuenta, denominacion, cuil_cuit, n_lote, ic_cliente, caja, registro
+                    n_cuenta, denominacion, cuil_cuit, n_lote, id_cliente, caja, registro
                 ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """, tuple(datos.values()))
             conn2.commit()
@@ -1989,11 +2004,11 @@ class Frame(tk.Frame):
         nuevo_datos["registro"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
         # Definir la ruta de la base de datos
-        db_path = "C:/Libro de Actas/Libro_de_actas.db"
+        db_path = "/Libro de Actas/Libro_de_actas.db"
 
         # Verificar si la carpeta existe, si no, crearla
-        if not os.path.exists("C:/Libro de Actas"):
-            os.makedirs("C:/Libro de Actas")
+        if not os.path.exists("/Libro de Actas"):
+            os.makedirs("/Libro de Actas")
 
         # Conectar a la base de datos
         with sqlite3.connect(db_path) as conn:
@@ -2017,8 +2032,7 @@ class Frame(tk.Frame):
             cursor.execute("""
                 INSERT INTO Libro_de_actas_database (
                     n_cuenta, denominacion, cuil_cuit,  n_lote, id_cliente, caja, registro
-                           
-                ) VALUES (?, ?, ?, ?, ?, ?, ?)
+                           ) VALUES (?, ?, ?, ?, ?, ?, ?)
             """, tuple(nuevo_datos.values()))
 
             conn.commit()
@@ -2053,10 +2067,11 @@ class Frame(tk.Frame):
             # Crear la ventana secundaria para la edición
             ventana_edicion = tk.Toplevel(self)
             ventana_edicion.title("Editar Registro")
-            ventana_edicion.geometry("900x350")
+            ventana_edicion.geometry("600x350")
             ventana_edicion.transient(self)
             ventana_edicion.grab_set()
             ventana_edicion.iconbitmap("img/Datcorr.ico")
+
             #ventana_edicion.resizable(0,0)
             ventana_edicion.config(bg="#676767")
 
@@ -2065,108 +2080,53 @@ class Frame(tk.Frame):
             label_nombre.grid(row=0, column=0, columnspan=4)  # Se extiende a través de dos columnas
 
             # Crear labels y entries en la ventana secundaria
-            tk.Label(ventana_edicion, text="Denominación:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=1, column=1, padx=10, pady=5, sticky="w")            
+            tk.Label(ventana_edicion, text="N° de CUENTA:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=1, column=1, padx=10, pady=5, sticky="w")            
+            entry_n_cuenta = tk.Entry(ventana_edicion, width=45)
+            entry_n_cuenta.grid(row=1, column=2, padx=10, pady=5)
+            entry_n_cuenta.insert(0, self.n_cuenta_Catastro_database)
+            entry_n_cuenta.config(width= 40, font = ("Arial", 10, "bold"))
+            entry_n_cuenta.focus_set()
+            entry_n_cuenta.bind("<Return>", lambda event: entry_denominacion.focus_set())
+
+            tk.Label(ventana_edicion, text="Denominación:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=2, column=1, padx=10, pady=5, sticky="w")            
             entry_denominacion = tk.Entry(ventana_edicion, width=45)
-            entry_denominacion.grid(row=1, column=2, padx=10, pady=5)
+            entry_denominacion.grid(row=2, column=2, padx=10, pady=5)
             entry_denominacion.insert(0, self.denominacion_Catastro_database)
             entry_denominacion.config(width= 40, font = ("Arial", 10, "bold"))
             entry_denominacion.focus_set()
-            entry_denominacion.bind("<Return>", lambda event: entry_departamento.focus_set())
+            entry_denominacion.bind("<Return>", lambda event: entry_cuil_cuit.focus_set())
 
-            tk.Label(ventana_edicion, text="CUIL/CUIT:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=2, column=1, padx=10, pady=5, sticky="w")
-            entry_departamento = tk.Entry(ventana_edicion, width=45)
-            entry_departamento.grid(row=2, column=2, padx=10, pady=5)            
-            entry_departamento.insert(0, self.departamento_Catastro_database)
-            entry_departamento.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_departamento.bind("<Return>", lambda event: entry_n_cuenta.focus_set())
+            tk.Label(ventana_edicion, text="CUIL/CUIT:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=3, column=1, padx=10, pady=5, sticky="w")
+            entry_cuil_cuit = tk.Entry(ventana_edicion, width=45)
+            entry_cuil_cuit.grid(row=3, column=2, padx=10, pady=5)            
+            entry_cuil_cuit.insert(0, self.cuil_cuit_Catastro_database)
+            entry_cuil_cuit.config(width= 40, font = ("Arial", 10, "bold"))
+            entry_cuil_cuit.bind("<Return>", lambda event: entry_n_lote.focus_set())
 
-            tk.Label(ventana_edicion, text="N° DE CUENTA:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=3, column=1, padx=10, pady=5, sticky="w")
-            entry_n_cuenta = tk.Entry(ventana_edicion, width=45)
-            entry_n_cuenta.grid(row=3, column=2, padx=10, pady=5)            
-            entry_n_cuenta.insert(0, self.n_cuenta_Catastro_database)
-            entry_n_cuenta.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_n_cuenta.bind("<Return>", lambda event: entry_estado.focus_set())
-
-            tk.Label(ventana_edicion, text="Estado:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=4, column=1, padx=10, pady=5, sticky="w")
-            entry_estado = tk.Entry(ventana_edicion, width=45)
-            entry_estado.grid(row=4, column=2, padx=10, pady=5)            
-            entry_estado.insert(0, self.estado_Catastro_database)
-            entry_estado.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_estado.bind("<Return>", lambda event: entry_caratula.focus_set())
-
-            tk.Label(ventana_edicion, text="ID DEL CLIENTE:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=5, column=1, padx=10, pady=5, sticky="w")
-            entry_caratula = tk.Entry(ventana_edicion, width=45)
-            entry_caratula.grid(row=5, column=2, padx=10, pady=5)            
-            entry_caratula.insert(0, self.caratula_Catastro_database)
-            entry_caratula.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_caratula.bind("<Return>", lambda event: entry_ingreso.focus_set())
-
-            tk.Label(ventana_edicion, text="Ingreso:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=6, column=1, padx=10, pady=5, sticky="w")
-            entry_ingreso = tk.Entry(ventana_edicion, width=45)
-            entry_ingreso.grid(row=6, column=2, padx=10, pady=5)            
-            entry_ingreso.insert(0, self.ingreso_Catastro_database)
-            entry_ingreso.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_ingreso.bind("<Return>", lambda event: entry_egreso.focus_set())
-
-            tk.Label(ventana_edicion, text="Egreso:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=7, column=1, padx=10, pady=5, sticky="w")
-            entry_egreso = tk.Entry(ventana_edicion, width=45)
-            entry_egreso.grid(row=7, column=2, padx=10, pady=5)            
-            entry_egreso.insert(0, self.egreso_Catastro_database)
-            entry_egreso.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_egreso.bind("<Return>", lambda event: entry_ultimo_movimiento.focus_set())
-
-            tk.Label(ventana_edicion, text="Ult. Mov.:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=1, column=3, padx=10, pady=5, sticky="w")
-            entry_ultimo_movimiento = tk.Entry(ventana_edicion, width=45)
-            entry_ultimo_movimiento.grid(row=1, column=4, padx=10, pady=5)            
-            entry_ultimo_movimiento.insert(0, self.ultimo_movimiento_Catastro_database)
-            entry_ultimo_movimiento.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_ultimo_movimiento.bind("<Return>", lambda event: entry_n_lote.focus_set())
-
-            tk.Label(ventana_edicion, text="N° de Lote:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=2, column=3, padx=10, pady=5, sticky="w")
+            tk.Label(ventana_edicion, text="N° de Lote:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=4, column=1, padx=10, pady=5, sticky="w")
             entry_n_lote = tk.Entry(ventana_edicion, width=45)
-            entry_n_lote.grid(row=2, column=4, padx=10, pady=5)            
+            entry_n_lote.grid(row=4, column=2, padx=10, pady=5)            
             entry_n_lote.insert(0, self.n_lote_Catastro_database)
             entry_n_lote.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_n_lote.bind("<Return>", lambda event: entry_minuta.focus_set())
+            entry_n_lote.bind("<Return>", lambda event: entry_id_cliente.focus_set())
 
-            tk.Label(ventana_edicion, text="Documento:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=3, column=3, padx=10, pady=5, sticky="w")
-            entry_minuta = tk.Entry(ventana_edicion, width=45)
-            entry_minuta.grid(row=3, column=4, padx=10, pady=5)            
-            entry_minuta.insert(0, self.minuta_Catastro_database)
-            entry_minuta.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_minuta.bind("<Return>", lambda event: entry_plano.focus_set())
+            tk.Label(ventana_edicion, text="ID DE CLIENTE:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=5, column=1, padx=10, pady=5, sticky="w")
+            entry_id_cliente = tk.Entry(ventana_edicion, width=45)
+            entry_id_cliente.grid(row=5, column=2, padx=10, pady=5)            
+            entry_id_cliente.insert(0, self.id_cliente_Catastro_database)
+            entry_id_cliente.config(width= 40, font = ("Arial", 10, "bold"))
+            entry_id_cliente.bind("<Return>", lambda event: entry_caja.focus_set())
 
-            tk.Label(ventana_edicion, text="Plano:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=4, column=3, padx=10, pady=5, sticky="w")
-            entry_plano = tk.Entry(ventana_edicion, width=45)
-            entry_plano.grid(row=4, column=4, padx=10, pady=5)            
-            entry_plano.insert(0, self.plano_Catastro_database)
-            entry_plano.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_plano.bind("<Return>", lambda event: entry_ficha.focus_set())
-
-            tk.Label(ventana_edicion, text="Ficha:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=5, column=3, padx=10, pady=5, sticky="w")
-            entry_ficha = tk.Entry(ventana_edicion, width=45)
-            entry_ficha.grid(row=5, column=4, padx=10, pady=5)            
-            entry_ficha.insert(0, self.ficha_Catastro_database)
-            entry_ficha.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_ficha.bind("<Return>", lambda event: entry_zona.focus_set())
-
-            tk.Label(ventana_edicion, text="Zona:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=6, column=3, padx=10, pady=5, sticky="w")
-            entry_zona = tk.Entry(ventana_edicion, width=45)
-            entry_zona.grid(row=6, column=4, padx=10, pady=5)            
-            entry_zona.insert(0, self.zona_Catastro_database)
-            entry_zona.config(width= 40, font = ("Arial", 10, "bold"))
-            entry_zona.bind("<Return>", lambda event: entry_caja.focus_set())
-
-            tk.Label(ventana_edicion, text="Caja:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=7, column=3, padx=10, pady=5, sticky="w")
+            tk.Label(ventana_edicion, text="Caja:",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=6, column=1, padx=10, pady=5, sticky="w")
             entry_caja = tk.Entry(ventana_edicion, width=45)
-            entry_caja.grid(row=7, column=4, padx=10, pady=5)
+            entry_caja.grid(row=6, column=2, padx=10, pady=5)
             entry_caja.insert(0, self.caja_Catastro_database)
             entry_caja.config(width= 40, font = ("Arial", 10, "bold"))
             entry_caja.bind("<Return>", lambda event: boton_guardar.focus_set())
 
-            tk.Label(ventana_edicion, text="Registro \n(NO editable):",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=8, column=3, padx=10, pady=5, sticky="w")
+            tk.Label(ventana_edicion, text="Registro \n(NO editable):",width= 12, font = ("Linkin Park ExtraBold", 10, "bold"), bg= "#676767").grid(row=7, column=1, padx=10, pady=5, sticky="w")
             entry_registro = tk.Entry(ventana_edicion, width=30, state="normal") 
-            entry_registro.grid(row=8, column=4, padx=10, pady=5)
+            entry_registro.grid(row=7, column=2, padx=10, pady=5)
             entry_registro.insert(0, self.registro_Catastro_database)
             entry_registro.config(state="disabled")  # Deshabilitar después de insertar el texto
             entry_registro.config(width= 30, font = ("Arial", 10, "bold"))
@@ -2177,24 +2137,14 @@ class Frame(tk.Frame):
 
             ventana_edicion.protocol("WM_DELETE_WINDOW", cerrar_ventana_edicion)
 
-
-
             def guardar_cambios_manuales(event=None):
                 try:
                     datos = (
-                        entry_denominacion.get().strip(),
-                        entry_departamento.get().strip(),
                         entry_n_cuenta.get().strip(),
-                        entry_estado.get().strip(),
-                        entry_caratula.get().strip(),
-                        entry_ingreso.get().strip(),
-                        entry_egreso.get().strip(),
-                        entry_ultimo_movimiento.get().strip(),
+                        entry_denominacion.get().strip(),
+                        entry_cuil_cuit.get().strip(),                        
                         entry_n_lote.get().strip(),
-                        entry_minuta.get().strip(),
-                        entry_plano.get().strip(),
-                        entry_ficha.get().strip(),
-                        entry_zona.get().strip(),
+                        entry_id_cliente.get().strip(),
                         entry_caja.get().strip(),
                         entry_registro.get().strip()
                     )
@@ -2206,9 +2156,9 @@ class Frame(tk.Frame):
                             # Nuevo registro
                             query = """
                                 INSERT INTO Catastro_database 
-                                (denominacion, departamento, n_cuenta, estado, caratula, ingreso, egreso, 
-                                ultimo_movimiento, n_lote, minuta, plano, ficha, zona, caja, registro) 
-                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                                (n_cuenta, denominacion, cuil_cuit,  
+                                n_lote, id_cliente, caja, registro) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?)
                             """
                             cursor.execute(query, datos)
                             # Obtener el ID del nuevo registro
@@ -2221,9 +2171,7 @@ class Frame(tk.Frame):
                             # Edición existente
                             query = """
                                 UPDATE Catastro_database
-                                SET denominacion = ?, departamento = ?, n_cuenta = ?, estado = ?, caratula = ?, 
-                                    ingreso = ?, egreso = ?, ultimo_movimiento = ?, n_lote = ?, minuta = ?, 
-                                    plano = ?, ficha = ?, zona = ?, caja = ?, registro = ?
+                                SET n_cuenta = ?, denominacion = ?, cuil_cuit = ?, n_lote = ?, id_cliente = ?, caja = ?, registro = ?
                                 WHERE ID_Catastro_database = ?
                             """
                             cursor.execute(query, datos + (self.id_Catastro_database,))
@@ -2246,12 +2194,12 @@ class Frame(tk.Frame):
                           
              # Botón para guardar los cambios
             boton_guardar = tk.Button(ventana_edicion, text="Guardar Cambios", command=guardar_cambios_manuales)
-            boton_guardar.grid(row=8, column=0, columnspan=2, pady=10)
+            boton_guardar.grid(row=2, column=3, columnspan=2, pady=10)
             boton_guardar.bind("<Return>", lambda event: guardar_cambios_manuales(event))
             boton_guardar.config(width=15, font=("Arial",10, "bold"), fg = "black", bg="#00aae4",cursor = "hand2", activebackground= "#FFFFFF")
 
             boton_cerrar = tk.Button(ventana_edicion, text="Cancelar Edicion", command=cerrar_ventana_edicion)
-            boton_cerrar.grid(row=8, column=1, columnspan=2, pady=10)
+            boton_cerrar.grid(row=4, column=3, columnspan=2, pady=10)
             boton_cerrar.bind("<Return>", lambda event: cerrar_ventana_edicion(event))
             boton_cerrar.config(width=15, font=("Arial",10, "bold"), fg = "black", bg="#00aae4",cursor = "hand2", activebackground= "#FFFFFF")
 
@@ -2321,7 +2269,7 @@ class FiltroFechaVentana(tk.Toplevel):
         self.geometry("1000x500")
         self.iconbitmap("img/Datcorr.ico")
         #self.resizable(0,0)
-        self.config(bg= "#276164")
+        self.config(bg= "#123584")
 
         self.label_desde = tk.Label(self, text="DESDE:")
         self.label_desde.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
@@ -2376,26 +2324,34 @@ class FiltroFechaVentana(tk.Toplevel):
         
         # Configurar encabezados
         self.treeview_resultados.heading("#0", anchor=tk.CENTER,text="ID")
+        self.treeview_resultados.heading("#0", anchor=tk.CENTER,text="N° DE CUENTA")
         self.treeview_resultados.heading("#1", anchor=tk.CENTER,text="Denominacion")
-        self.treeview_resultados.heading("#2", anchor=tk.CENTER,text="CODIGO")
+        self.treeview_resultados.heading("#2", anchor=tk.CENTER,text="CUIL/CUIT")
         self.treeview_resultados.heading("#3", anchor=tk.CENTER,text="LOTE")
+        self.treeview_resultados.heading("#3", anchor=tk.CENTER,text="ID DE CLIENTE")
         self.treeview_resultados.heading("#4", anchor=tk.CENTER,text="Caja")
         self.treeview_resultados.heading("#5", anchor=tk.CENTER,text="Registro")
 
-        self.treeview_resultados["columns"] = ("ID", "Denominación",  "CODIGO", "LOTE", "Caja", "Registro")
+        self.treeview_resultados["columns"] = ("ID", "N° DE CUENTA", "Denominación",  "CUIL/CUIT", "LOTE", "ID DE CLIENTE", "Caja", "Registro")
         # Configuración de encabezados y anchos
         self.treeview_resultados.heading("ID", text="ID")
         self.treeview_resultados.column("ID", width=0, stretch=tk.NO)  # Ancho de la columna ID
         #self.treeview_resultados.column("ID", width=10)  # Ancho de la columna ID
 
+        self.treeview_resultados.heading("N° DE CUENTA",anchor=tk.CENTER, text="N° DE CUENTA")
+        self.treeview_resultados.column("N° DE CUENTA",anchor=tk.CENTER, width=150)
+
         self.treeview_resultados.heading("Denominación",anchor=tk.CENTER, text="Denominación")
         self.treeview_resultados.column("Denominación",anchor=tk.CENTER, width=150)  # Ancho de la columna Denominación
 
-        self.treeview_resultados.heading("CODIGO",anchor=tk.CENTER, text="CODIGO")
-        self.treeview_resultados.column("CODIGO",anchor=tk.CENTER, width=150)
+        self.treeview_resultados.heading("CUIL/CUIT",anchor=tk.CENTER, text="CUIL/CUIT")
+        self.treeview_resultados.column("CUIL/CUIT",anchor=tk.CENTER, width=150)
 
         self.treeview_resultados.heading("LOTE",anchor=tk.CENTER, text="LOTE")
         self.treeview_resultados.column("LOTE",anchor=tk.CENTER, width=50)
+
+        self.treeview_resultados.heading("ID DE CLIENTE",anchor=tk.CENTER, text="ID DE CLIENTE")
+        self.treeview_resultados.column("ID DE CLIENTE",anchor=tk.CENTER, width=150)
 
         self.treeview_resultados.heading("Caja",anchor=tk.CENTER, text="Caja")
         self.treeview_resultados.column("Caja",anchor=tk.CENTER, width=50) 
@@ -2462,13 +2418,15 @@ class FiltroFechaVentana(tk.Toplevel):
             index = treeview_resultados.index(selection[0])
             # Obtener el ID del resultado seleccionado
             id_resultado = treeview_resultados.item(selection[0])["values"][0]
-            denominacion_resultado = treeview_resultados.item(selection[0], "values")[1]
-            zona_resultado = treeview_resultados.item(selection[0], "values")[2]
-            lote_resultado = treeview_resultados.item(selection[0], "values")[3]
-            caja_resultado = treeview_resultados.item(selection[0], "values")[4]
-            registro_resultado = treeview_resultados.item(selection[0], "values")[5]
+            n_cuenta_resultado = treeview_resultados.item(selection[0])["values"][1]
+            denominacion_resultado = treeview_resultados.item(selection[0], "values")[2]
+            cuil_cuit_resultado = treeview_resultados.item(selection[0], "values")[3]
+            lote_resultado = treeview_resultados.item(selection[0], "values")[4]
+            id_cliente_resultado = treeview_resultados.item(selection[0], "values")[5]
+            caja_resultado = treeview_resultados.item(selection[0], "values")[6]
+            registro_resultado = treeview_resultados.item(selection[0], "values")[7]
             # Llamar a la función editar_datos_consulta con los valores correspondientes
-            self.editar_datos_consulta(id_resultado, denominacion_resultado, zona_resultado, lote_resultado, caja_resultado, registro_resultado)
+            self.editar_datos_consulta(id_resultado, n_cuenta_resultado, denominacion_resultado, cuil_cuit_resultado, lote_resultado, id_cliente_resultado, caja_resultado, registro_resultado)
         else:
             messagebox.showinfo("Error", "Por favor, selecciona un resultado para editar.")
 
@@ -2480,13 +2438,13 @@ class FiltroFechaVentana(tk.Toplevel):
             self.lista_Catastro_database.insert("", "end", values=datos)
 
     def editar_datos_consulta(self, id_resultado,
-                              denominacion_resultado, zona_resultado, lote_resultado, caja_resultado, registro_resultado):
+                              n_cuenta_resultado, denominacion_resultado, cuil_cuit_resultado, lote_resultado, id_cliente_resultado, caja_resultado, registro_resultado):
         self.id_resultado_seleccionado = id_resultado
         ventana_edicion = tk.Toplevel(self)
         ventana_edicion.title("Editar Datos")
         ventana_edicion.geometry("490x300")
         ventana_edicion.iconbitmap("img/Datcorr.ico")
-        ventana_edicion.config(bg="#276164")
+        ventana_edicion.config(bg="#123584")
         ventana_edicion.resizable(0,0)
 
         # Crea los elementos de la interfaz para editar los datos (labels, entry, botones, etc.)
@@ -2495,85 +2453,115 @@ class FiltroFechaVentana(tk.Toplevel):
         label_nombre.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
         label_nombre.grid(row=0, column=0, columnspan=2)  # Se extiende a través de dos columnas
 
+        self.label_n_cuenta_resultado = tk.Label(ventana_edicion, text="N° de Cuenta:")
+        self.label_n_cuenta_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
+        self.label_n_cuenta_resultado.grid(row=1, column=0, padx=5, pady=5)
+
         self.label_denominacion_resultado = tk.Label(ventana_edicion, text="Denominacion:")
         self.label_denominacion_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
-        self.label_denominacion_resultado.grid(row=1, column=0, padx=5, pady=5)
+        self.label_denominacion_resultado.grid(row=2, column=0, padx=5, pady=5)
 
-        self.label_zona_resultado = tk.Label(ventana_edicion, text="Codigo:")
-        self.label_zona_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
-        self.label_zona_resultado.grid(row=2, column=0, padx=5, pady=5)
+        self.label_cuil_cuit_resultado = tk.Label(ventana_edicion, text="Cuil/Cuit:")
+        self.label_cuil_cuit_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
+        self.label_cuil_cuit_resultado.grid(row=3, column=0, padx=5, pady=5)
 
         self.label_lote_resultado = tk.Label(ventana_edicion, text="Lote:")
         self.label_lote_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
-        self.label_lote_resultado.grid(row=3, column=0, padx=5, pady=5)
+        self.label_lote_resultado.grid(row=4, column=0, padx=5, pady=5)
+
+        self.label_id_cliente_resultado = tk.Label(ventana_edicion, text="Id de Cliente:")
+        self.label_id_cliente_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
+        self.label_id_cliente_resultado.grid(row=5, column=0, padx=5, pady=5)
 
         self.label_caja_resultado = tk.Label(ventana_edicion, text="Caja:")
         self.label_caja_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
-        self.label_caja_resultado.grid(row=4, column=0, padx=5, pady=5)
+        self.label_caja_resultado.grid(row=6, column=0, padx=5, pady=5)
 
         self.label_registro_resultado = tk.Label(ventana_edicion, text="Registro no editable:")
         self.label_registro_resultado.config(font=("Linkin Park ExtraBold", 15), background= "#35BD6D") 
-        self.label_registro_resultado.grid(row=5, column=0, padx=5, pady=5)
+        self.label_registro_resultado.grid(row=7, column=0, padx=5, pady=5)
+
+        self.entry_n_cuenta_resultado = tk.Entry(ventana_edicion)
+        self.entry_n_cuenta_resultado.config(width= 40, font = ("Arial", 10, "bold"))
+        self.entry_n_cuenta_resultado.grid(row=1, column=1)
+        self.entry_n_cuenta_resultado.insert(tk.END, n_cuenta_resultado)
+        self.entry_n_cuenta_resultado.bind("<Return>", lambda event: self.entry_denominacion_resultado.focus())
 
         self.entry_denominacion_resultado = tk.Entry(ventana_edicion)
         self.entry_denominacion_resultado.config(width= 40, font = ("Arial", 10, "bold"))
-        self.entry_denominacion_resultado.grid(row=1, column=1)
+        self.entry_denominacion_resultado.grid(row=2, column=1)
         self.entry_denominacion_resultado.insert(tk.END, denominacion_resultado)
-        self.entry_denominacion_resultado.bind("<Return>", lambda event: self.entry_zona_resultado.focus())
+        self.entry_denominacion_resultado.bind("<Return>", lambda event: self.entry_cuil_cuit_resultado.focus())
 
-        self.entry_zona_resultado = tk.Entry(ventana_edicion)
-        self.entry_zona_resultado.config(width= 40, font = ("Arial", 10, "bold"))
-        self.entry_zona_resultado.grid(row=2, column=1)
-        self.entry_zona_resultado.insert(tk.END, zona_resultado)
-        self.entry_zona_resultado.bind("<Return>", lambda event: self.entry_lote_resultado.focus())
+        self.entry_cuil_cuit_resultado = tk.Entry(ventana_edicion)
+        self.entry_cuil_cuit_resultado.config(width= 40, font = ("Arial", 10, "bold"))
+        self.entry_cuil_cuit_resultado.grid(row=3, column=1)
+        self.entry_cuil_cuit_resultado.insert(tk.END, cuil_cuit_resultado)
+        self.entry_cuil_cuit_resultado.bind("<Return>", lambda event: self.entry_lote_resultado.focus())
 
         self.entry_lote_resultado = tk.Entry(ventana_edicion)
         self.entry_lote_resultado.config(width= 40, font = ("Arial", 10, "bold"))
-        self.entry_lote_resultado.grid(row=3, column=1)
+        self.entry_lote_resultado.grid(row=4, column=1)
         self.entry_lote_resultado.insert(tk.END, lote_resultado)
         self.entry_lote_resultado.bind("<Return>", lambda event: self.entry_caja_resultado.focus())
 
+        self.entry_id_cliente_resultado = tk.Entry(ventana_edicion)
+        self.entry_id_cliente_resultado.config(width= 40, font = ("Arial", 10, "bold"))
+        self.entry_id_cliente_resultado.grid(row=5, column=1)
+        self.entry_id_cliente_resultado.insert(tk.END, id_cliente_resultado)
+        self.entry_id_cliente_resultado.bind("<Return>", lambda event: self.entry_caja_resultado.focus())
+
         self.entry_caja_resultado = tk.Entry(ventana_edicion)
         self.entry_caja_resultado.config(width= 40, font = ("Arial", 10, "bold"))
-        self.entry_caja_resultado.grid(row=4, column=1)
+        self.entry_caja_resultado.grid(row=6, column=1)
         self.entry_caja_resultado.insert(tk.END, caja_resultado)
         self.entry_caja_resultado.bind("<Return>", lambda event: self.button_guardar.focus())
 
         self.entry_registro_resultado = tk.Entry(ventana_edicion)
         self.entry_registro_resultado.config(width= 23, font = ("Arial", 10, "bold"))
-        self.entry_registro_resultado.grid(row=5, column=1)
+        self.entry_registro_resultado.grid(row=7, column=1)
         self.entry_registro_resultado.insert(tk.END, registro_resultado)
       
 
         # Agrega un botón para guardar los cambios
         self.button_guardar = tk.Button(ventana_edicion, **estilo_button_guardar, text="Guardar", command=lambda: self.guardar_cambios(
+           self.entry_n_cuenta_resultado.get(),
            self.entry_denominacion_resultado.get(),
-                                        self.entry_zona_resultado.get(),
+                                        self.entry_cuil_cuit_resultado.get(),
                                         self.entry_lote_resultado.get(),
+                                        self.entry_id_cliente_resultado.get(),
                                         self.entry_caja_resultado.get()                                       
                                         ))
-        self.button_guardar.grid(row=6, column=0, columnspan=2, padx=5, pady=5)
+        self.button_guardar.grid(row=8, column=0, columnspan=2, padx=5, pady=5)
         self.button_guardar.config(width=15, font=("Arial",12, "bold"), fg = "black", bg="#00aae4",cursor = "hand2", activebackground= "#FFFFFF")
-        self.button_guardar.bind("<Return>", lambda event: self.guardar_cambios(self.entry_denominacion_resultado, 
-                                                                                self.entry_zona_resultado,
+        self.button_guardar.bind("<Return>", lambda event: self.guardar_cambios(self.entry_n_cuenta_resultado,
+                                                                                self.entry_denominacion_resultado,
+                                                                                self.entry_cuil_cuit_resultado,
                                                                                 self.entry_lote_resultado,
+                                                                                self.entry_id_cliente_resultado,
                                                                                 self.entry_caja_resultado,
                                                                                 ))
-    def guardar_cambios(self, entry_denominacion_resultado,
-                        entry_zona_resultado,
+    def guardar_cambios(self, entry_n_cuenta_resultado,
+                        entry_denominacion_resultado,
+                        entry_cuil_cuit_resultado,
                         entry_lote_resultado,
+                        entry_id_cliente_resultado,
                         entry_caja_resultado):
+        nuevo_n_cuenta_resultado = self.entry_n_cuenta_resultado.get()
         nuevo_denominacion_resultado = self.entry_denominacion_resultado.get()
-        nuevo_zona_resultado = self.entry_zona_resultado.get()
+        nuevo_cuil_cuit_resultado = self.entry_cuil_cuit_resultado.get()
         nuevo_lote_resultado = self.entry_lote_resultado.get()
+        nuevo_id_cliente_resultado = self.entry_id_cliente_resultado.get()
         nuevo_caja_resultado = self.entry_caja_resultado.get()
         conn = sqlite3.connect("database/Datcorr.db")
         cursor = conn.cursor()
         try:
-            cursor.execute("UPDATE Catastro_database SET DENOMINACION = ?, ZONA = ?, LOTE = ?, CAJA = ? WHERE ID_Catastro_database = ?",
-                           (nuevo_denominacion_resultado,
-                            nuevo_zona_resultado,
+            cursor.execute("UPDATE Catastro_database SET N_CUENTA = ?, DENOMINACION = ?, CUIL/CUIT = ?, LOTE = ?, ID_CLIENTE = ?, CAJA = ? WHERE ID_Catastro_database = ?",
+                           (nuevo_n_cuenta_resultado,
+                           nuevo_denominacion_resultado,
+                            nuevo_cuil_cuit_resultado,
                             nuevo_lote_resultado,
+                            nuevo_id_cliente_resultado,
                             nuevo_caja_resultado,                                                                           
                              self.id_resultado_seleccionado))
             conn.commit()

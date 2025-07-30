@@ -30,13 +30,13 @@ class AplicacionPrincipal(tk.Tk):
         font_title = font.Font(family="Techno Board", size=12, weight="bold")
 
         ## Crear una etiqueta para el título y aplicar la fuente y el color correspondientes
-        title_label = tk.Label(self, text="DATCORR: Archivo: \n✅ VINCULACIONES", font=font_title, fg="#5c5c5c")
+        title_label = tk.Label(self, text="DATCORR: Archivo: \n✅ VINCULACIONES", font=font_title, fg="#123584") #123584
 #
 
         # Posicionar la etiqueta en la ventana
         title_label.pack()
 
-        self.config(bg="#276164")
+        self.config(bg="#123584")
 
         # Cargar y redimensionar la imagen PNG
         imagen_original = Image.open("img/logo.png")  # Cargar la imagen original
@@ -91,7 +91,7 @@ class InicioSesionVentana(tk.Tk):
 
         self.title("Inicio de Sesión")
         self.geometry("335x255")
-        self.config(bg="#276164")
+        self.config(bg="#123584")
         self.iconbitmap("img/fep.ico")
         self.resizable(0,0)
 
@@ -125,7 +125,7 @@ class InicioSesionVentana(tk.Tk):
         self.entry_contrasena.bind("<Return>", lambda event: self.button_iniciar_sesion.focus_set())
 
         self.entry_usuario.focus_set()   
-        self.button_iniciar_sesion = tk.Button(self, text="Iniciar Sesión: \nI P S", command=self.verificar_credenciales)
+        self.button_iniciar_sesion = tk.Button(self, text="Iniciar Sesión: \nBanCo", command=self.verificar_credenciales)
         self.button_iniciar_sesion.place(x=110, y=115)
         #self.button_iniciar_sesion.grid(row=3, column=1, columnspan=2, pady=10)
         self.button_iniciar_sesion.config(width=15, font=("Consolas",12, "bold"), fg="#000000", bg="#317bcf", cursor="hand2", activebackground="#35BD6D")
