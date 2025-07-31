@@ -30,7 +30,7 @@ class AplicacionPrincipal(tk.Tk):
         font_title = font.Font(family="Techno Board", size=12, weight="bold")
 
         ## Crear una etiqueta para el título y aplicar la fuente y el color correspondientes
-        title_label = tk.Label(self, text="DATCORR: Archivo: \n✅ VINCULACIONES", font=font_title, fg="#123584") #123584
+        title_label = tk.Label(self, text="DATCORR: Archivo: \n✅ VINCULACIONES", font=font_title, fg="#F9F9FA", bg="#123584") #123584
 #
 
         # Posicionar la etiqueta en la ventana

@@ -427,27 +427,27 @@ class Frame(tk.Frame):
         # Labels de cada campo
 
         self.label_n_cuenta = tk.Label(self, text = "N° DE CUENTA: ")
-        self.label_n_cuenta.config(font=("Linkin Park ExtraBold", 15), background= "#a2a09f")  
+        self.label_n_cuenta.config(font=("Linkin Park ExtraBold", 15), background= "#123584")  
         self.label_n_cuenta.grid(row = 0, column = 0) 
 
         self.label_denominacion = tk.Label(self, text = "DENOMINACION: ")
-        self.label_denominacion.config(font=("Linkin Park ExtraBold", 15), background= "#a2a09f")  
+        self.label_denominacion.config(font=("Linkin Park ExtraBold", 15), background= "#123584")  
         self.label_denominacion.grid(row = 0, column = 2)  
 
         self.label_cuil_cuit = tk.Label(self, text = "CUIL/CUIT: ")
-        self.label_cuil_cuit.config(font=("Linkin Park ExtraBold", 15), background= "#a2a09f")  
+        self.label_cuil_cuit.config(font=("Linkin Park ExtraBold", 15), background= "#123584")  
         self.label_cuil_cuit.grid(row = 1, column = 0)                 
 
         self.label_n_lote = tk.Label(self, text = "LOTE: ")
-        self.label_n_lote.config(font=("Linkin Park ExtraBold", 15), background= "#a2a09f")  
+        self.label_n_lote.config(font=("Linkin Park ExtraBold", 15), background= "#123584")  
         self.label_n_lote.grid(row = 1, column = 2)        
 
         self.label_id_cliente = tk.Label(self, text = "ID DEL CLIENTE: ")
-        self.label_id_cliente.config(font=("Linkin Park ExtraBold", 15), background= "#a2a09f")  
+        self.label_id_cliente.config(font=("Linkin Park ExtraBold", 15), background= "#123584")  
         self.label_id_cliente.grid(row = 2, column = 0)   
 
         self.label_caja = tk.Label(self, text = "CAJA: ")
-        self.label_caja.config(font = ("Linkin Park ExtraBold", 15), background= "#a2a09f")
+        self.label_caja.config(font = ("Linkin Park ExtraBold", 15), background= "#123584")
         self.label_caja.grid(row = 2, column = 2)
 
         self.label_registro = tk.Label(self, text = "📌 REGISTRO")
@@ -559,17 +559,13 @@ class Frame(tk.Frame):
         self.scrollbar_n_cuenta = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.listbox_n_cuenta.yview)
 
         # Configurar sincronización entre ambos
-        self.listbox_n_cuenta.config(yscrollcommand=self.scrollbar_n_cuenta.set)
-
-        # Enlaces de eventos n_cuenta
-        self.listbox_n_cuenta.bind("<Double-Button-1>", self.seleccionar_n_cuenta)
-        self.listbox_n_cuenta.bind("<Return>", self.seleccionar_n_cuenta)
-        self.listbox_n_cuenta.bind("<Escape>", lambda e: self.ocultar_listbox_n_cuenta())
-        self.listbox_n_cuenta.bind("<FocusOut>", lambda e: self.ocultar_listbox_n_cuenta())
+        self.listbox_n_cuenta.config(yscrollcommand=self.scrollbar_n_cuenta.set)        
 
         # Ocultarlos por defecto
         self.listbox_n_cuenta.place_forget()
         self.scrollbar_n_cuenta.place_forget()
+
+        self.configurar_eventos_listbox()
 
         # Crear Listbox y Scrollbar al iniciar la clase n_lote
         self.listbox_n_lote = tk.Listbox(self, height=150,  bg="#a5a5a5", fg="black", font=("Arial", 10, "bold"))
@@ -589,7 +585,7 @@ class Frame(tk.Frame):
         self.scrollbar_n_lote.place_forget()
 
         # Crear Listbox y Scrollbar al iniciar la clase
-        self.listbox_denominacion = tk.Listbox(self, height=150,  bg="#a5a5a5", fg="#000000", font=("Arial", 10, "bold"))
+        self.listbox_denominacion = tk.Listbox(self, height=150,  bg="#7ec5ff", fg="#000000", font=("Arial", 10, "bold"))
         self.scrollbar_denominacion = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.listbox_denominacion.yview)
         
         # Configurar sincronización entre ambos
@@ -604,6 +600,15 @@ class Frame(tk.Frame):
         # Ocultarlos por defecto
         self.listbox_denominacion.place_forget()
         self.scrollbar_denominacion.place_forget()
+
+    def configurar_eventos_listbox(self):
+        # 🔗 Este método lo llamás una vez al iniciar la interfaz
+        self.listbox_n_cuenta.bind("<Return>", self.seleccionar_n_cuenta)     # Enter
+        self.listbox_n_cuenta.bind("<Double-Button-1>", self.seleccionar_n_cuenta)  # Doble clic
+        self.listbox_n_cuenta.bind("<Right>", self.seleccionar_n_cuenta)      # Flecha derecha opcional
+    
+        self.entry_n_cuenta.bind("<Down>", lambda e: self.listbox_n_cuenta.focus_set())  # ↓ para entrar al Listbox
+        self.entry_n_cuenta.bind("<Return>", self.seleccionar_n_cuenta)  # Enter directo desde el Entry
 
         self.configurar_navegacion()
 
@@ -630,6 +635,10 @@ class Frame(tk.Frame):
                     item = f"{n_cuenta} - {denominacion}"
                     self.listbox_n_cuenta.insert(tk.END, item)
 
+                self.listbox_n_cuenta.selection_clear(0, tk.END)
+                self.listbox_n_cuenta.selection_set(0)  # 👉 Selecciona primer ítem
+                self.listbox_n_cuenta.activate(0)       # 👉 Lo enfoca para navegación con teclas
+
                 self.update_idletasks()
                 x = self.entry_n_cuenta.winfo_x() + self.entry_n_cuenta.winfo_width()
                 y = self.entry_n_cuenta.winfo_y()
@@ -640,7 +649,7 @@ class Frame(tk.Frame):
                 self.listbox_n_cuenta.place(x=x, y=y, height=400)
                 self.scrollbar_n_cuenta.place(x=x + self.listbox_n_cuenta.winfo_reqwidth(), y=y, height=400)
                 self.boton_cerrar_listbox_n_cuenta.place(
-                    x=x + self.listbox_n_cuenta.winfo_reqwidth() + self.scrollbar_n_cuenta.winfo_reqwidth() - 500,
+                    x=x + self.listbox_n_cuenta.winfo_reqwidth() +  self.scrollbar_n_cuenta.winfo_reqwidth() - 650,
                     y=y
                 )
 
@@ -653,6 +662,7 @@ class Frame(tk.Frame):
 
         except Exception as e:
             print(f"Error al buscar coincidencias: {e}")
+
 
     def seleccionar_n_cuenta(self, event=None):
         seleccion = self.listbox_n_cuenta.curselection()
@@ -698,6 +708,9 @@ class Frame(tk.Frame):
 
         except Exception as e:
             print(f"Error al cargar datos: {e}")
+        
+        self.entry_id_cliente.focus_set()
+
 
     def buscar_coincidencias_listbox_01(self, event=None):
         texto = self.mi_denominacion.get().strip()
@@ -790,9 +803,7 @@ class Frame(tk.Frame):
                 self.entry_cuil_cuit.insert(0, datos[3])
                
         except Exception as e:
-            print(f"Error al cargar datos: {e}")
-
-    
+            print(f"Error al cargar datos: {e}")    
 
     def buscar_coincidencias_listbox_lote(self, event=None):
         texto = self.mi_n_lote.get().strip()
@@ -1117,7 +1128,7 @@ class Frame(tk.Frame):
 
         #Scrollbar para la tabla si excede 10 registros
         self.scroll = ttk.Scrollbar(self, orient = "vertical", command = self.tabla.yview)
-        self.scroll.grid(row = 14, column = 7, sticky = "ns")
+        self.scroll.grid(row = 14, column = 7, sticky = "nswe")
         self.tabla.configure(yscrollcommand = self.scroll.set)
 
         # Configurar expansión
@@ -1179,7 +1190,7 @@ class Frame(tk.Frame):
         boton_filtrar_fecha.config(width=20, font=("Arial",10, "bold"), fg = "#DAD5D6", bg="purple",cursor = "hand2", activebackground= "#35BD6D")
 
         boton_copia_seguridad = tk.Button(self, text="COPIA DE SUEGURIDAD", command=self.copia_seguridad)
-        boton_copia_seguridad.grid(row=16, column=2, columnspan=5, pady=10)
+        boton_copia_seguridad.grid(row=15, column=2, columnspan=5, pady=10)
         boton_copia_seguridad.config(width=20, font=("Arial",10, "bold"), fg = "#e90000", bg="green",cursor = "hand2", activebackground= "#35BD6D")
 
     def copia_seguridad(self, event=None):
