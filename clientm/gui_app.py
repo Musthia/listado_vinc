@@ -1190,8 +1190,15 @@ class Frame(tk.Frame):
         boton_filtrar_fecha.config(width=20, font=("Arial",10, "bold"), fg = "#DAD5D6", bg="purple",cursor = "hand2", activebackground= "#35BD6D")
 
         boton_copia_seguridad = tk.Button(self, text="COPIA DE SUEGURIDAD", command=self.copia_seguridad)
-        boton_copia_seguridad.grid(row=15, column=2, columnspan=5, pady=10)
+        boton_copia_seguridad.grid(row=15, column=2, pady=10)
         boton_copia_seguridad.config(width=20, font=("Arial",10, "bold"), fg = "#e90000", bg="green",cursor = "hand2", activebackground= "#35BD6D")
+
+        btn_exportar = tk.Button(self, text="Exportar a Excel", command=self.abrir_ventana_exportar)
+        btn_exportar.grid(row=15, column=3, pady=10)
+        btn_exportar.config(width=20, font=("Arial",10, "bold"), fg = "#e90000", bg="green",cursor = "hand2", activebackground= "#35BD6D")
+
+    def abrir_ventana_exportar(self):
+        VentanaExportarExcel(self)
 
     def copia_seguridad(self, event=None):
         # Ruta de la base de datos original
@@ -2241,6 +2248,89 @@ class Frame(tk.Frame):
             titulo = "Eliminar un Registro"
             mensaje = "No ha seleccionado ningún registro"
             messagebox.showerror(titulo, mensaje)
+
+import tkinter as tk
+from tkinter import ttk, filedialog, messagebox
+import sqlite3
+import pandas as pd
+import os
+
+class VentanaExportarExcel(tk.Toplevel):
+    def __init__(self, master=None):
+        super().__init__(master)
+        self.title("Exportar a Excel")
+        self.geometry("450x350")
+        self.resizable(False, False)
+
+        self.campos = [
+            "id_Catastro_database",
+            "n_cuenta",
+            "denominacion",
+            "cuil_cuit",
+            "n_lote",
+            "id_cliente",
+            "caja",
+            "registro"
+        ]
+
+        self.vars_campos = {campo: tk.BooleanVar(value=True) for campo in self.campos}
+        self.crear_widgets()
+
+    def crear_widgets(self):
+        tk.Label(self, text="Seleccione los campos a exportar:", font=("Arial", 11)).pack(pady=10)
+
+        frame_checks = tk.Frame(self)
+        frame_checks.pack()
+
+        for campo in self.campos:
+            tk.Checkbutton(frame_checks, text=campo, variable=self.vars_campos[campo]).pack(anchor="w")
+
+        frame_nombre = tk.Frame(self)
+        frame_nombre.pack(pady=15, padx=20, fill="x")
+
+        tk.Label(frame_nombre, text="Nombre del archivo:").grid(row=0, column=0, sticky="e")
+        self.entry_nombre_archivo = tk.Entry(frame_nombre)
+        self.entry_nombre_archivo.grid(row=0, column=1, sticky="we", padx=5)
+
+        frame_nombre.columnconfigure(1, weight=1)
+
+        btn_exportar = tk.Button(self, text="Exportar a Excel", command=self.exportar_excel, bg="#4CAF50", fg="white")
+        btn_exportar.pack(pady=10)
+
+    def exportar_excel(self):
+        nombre_archivo = self.entry_nombre_archivo.get().strip()
+        if not nombre_archivo:
+            messagebox.showwarning("Campo vacío", "Debe indicar un nombre para el archivo.")
+            return
+
+        campos_seleccionados = [campo for campo, var in self.vars_campos.items() if var.get()]
+        if not campos_seleccionados:
+            messagebox.showwarning("Sin campos", "Debe seleccionar al menos un campo.")
+            return
+
+        try:
+            conn = sqlite3.connect("database/Datcorr.db")
+            cursor = conn.cursor()
+
+            query = f"SELECT {', '.join(campos_seleccionados)} FROM Catastro_database"
+            cursor.execute(query)
+            datos = cursor.fetchall()
+            conn.close()
+
+            df = pd.DataFrame(datos, columns=campos_seleccionados)
+
+            # 📁 Carpeta de destino predeterminada
+            carpeta_destino = os.path.join(os.getcwd(), "excel_import")
+            os.makedirs(carpeta_destino, exist_ok=True)
+
+            ruta_completa = os.path.join(carpeta_destino, nombre_archivo + ".xlsx")
+            df.to_excel(ruta_completa, index=False)
+
+            messagebox.showinfo("Éxito", f"Archivo exportado en:\n{ruta_completa}")
+            self.destroy()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudo exportar:\n{e}")
 
 class ToolTip:
     def __init__(self, widget, text):
