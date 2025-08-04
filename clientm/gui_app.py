@@ -2255,11 +2255,14 @@ import sqlite3
 import pandas as pd
 import os
 
+
 class VentanaExportarExcel(tk.Toplevel):
     def __init__(self, master=None):
         super().__init__(master)
         self.title("Exportar a Excel")
-        self.geometry("450x350")
+        self.config(bg= "#123584")
+        self.iconbitmap("img/fep.ico")
+        self.geometry("500x430")
         self.resizable(False, False)
 
         self.campos = [
@@ -2274,28 +2277,56 @@ class VentanaExportarExcel(tk.Toplevel):
         ]
 
         self.vars_campos = {campo: tk.BooleanVar(value=True) for campo in self.campos}
+        self.cajas_disponibles = []
+
         self.crear_widgets()
+        self.cargar_cajas_unicas()
 
     def crear_widgets(self):
-        tk.Label(self, text="Seleccione los campos a exportar:", font=("Arial", 11)).pack(pady=10)
+        tk.Label(self, text="Seleccione los campos a exportar:", bg= "#123584", font=("Arial", 15, "bold")).pack(pady=10)
 
         frame_checks = tk.Frame(self)
+        frame_checks.config( bg= "#123584")
         frame_checks.pack()
 
         for campo in self.campos:
-            tk.Checkbutton(frame_checks, text=campo, variable=self.vars_campos[campo]).pack(anchor="w")
+            tk.Checkbutton(frame_checks, bg= "#123584", text=campo, font=("Arial", 11, "bold"), variable=self.vars_campos[campo]).pack(anchor="w")
+
+        # 🔹 Combobox para filtrar por caja
+        frame_filtro = tk.Frame(self)
+        frame_filtro.pack(pady=15)
+
+        tk.Label(frame_filtro,  bg= "#123584", text="Filtrar por Caja:", font=("Arial", 15, "bold")).grid(row=0, column=0, padx=5)
+        self.combo_caja = ttk.Combobox(frame_filtro, state="readonly", width=20)
+        self.combo_caja.grid(row=0, column=1, padx=5)
 
         frame_nombre = tk.Frame(self)
-        frame_nombre.pack(pady=15, padx=20, fill="x")
+        frame_nombre.config (bg= "#123584", )
+        frame_nombre.pack(pady=5, padx=20, fill="x")
 
-        tk.Label(frame_nombre, text="Nombre del archivo:").grid(row=0, column=0, sticky="e")
+        tk.Label(frame_nombre,  bg= "#123584", text="Nombre del archivo:", font=("Arial", 15, "bold")).grid(row=0, column=0, sticky="e")
         self.entry_nombre_archivo = tk.Entry(frame_nombre)
         self.entry_nombre_archivo.grid(row=0, column=1, sticky="we", padx=5)
-
         frame_nombre.columnconfigure(1, weight=1)
 
         btn_exportar = tk.Button(self, text="Exportar a Excel", command=self.exportar_excel, bg="#4CAF50", fg="white")
         btn_exportar.pack(pady=10)
+
+    def cargar_cajas_unicas(self):
+        try:
+            conn = sqlite3.connect("database/Datcorr.db")
+            cursor = conn.cursor()
+            cursor.execute("SELECT DISTINCT caja FROM Catastro_database WHERE caja IS NOT NULL ORDER BY caja")
+            cajas = cursor.fetchall()
+            conn.close()
+
+            self.cajas_disponibles = [str(c[0]) for c in cajas if c[0] is not None]
+            self.combo_caja["values"] = self.cajas_disponibles
+            if self.cajas_disponibles:
+                self.combo_caja.current(0)  # Selecciona la primera por defecto
+
+        except Exception as e:
+            messagebox.showerror("Error", f"No se pudieron cargar las cajas:\n{e}")
 
     def exportar_excel(self):
         nombre_archivo = self.entry_nombre_archivo.get().strip()
@@ -2308,18 +2339,26 @@ class VentanaExportarExcel(tk.Toplevel):
             messagebox.showwarning("Sin campos", "Debe seleccionar al menos un campo.")
             return
 
+        caja_seleccionada = self.combo_caja.get()
+        if not caja_seleccionada:
+            messagebox.showwarning("Sin filtro", "Debe seleccionar una caja para filtrar.")
+            return
+
         try:
             conn = sqlite3.connect("database/Datcorr.db")
             cursor = conn.cursor()
 
-            query = f"SELECT {', '.join(campos_seleccionados)} FROM Catastro_database"
-            cursor.execute(query)
+            query = f"""
+                SELECT {', '.join(campos_seleccionados)}
+                FROM Catastro_database
+                WHERE caja = ?
+            """
+            cursor.execute(query, (caja_seleccionada,))
             datos = cursor.fetchall()
             conn.close()
 
             df = pd.DataFrame(datos, columns=campos_seleccionados)
 
-            # 📁 Carpeta de destino predeterminada
             carpeta_destino = os.path.join(os.getcwd(), "excel_import")
             os.makedirs(carpeta_destino, exist_ok=True)
 
