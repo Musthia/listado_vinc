@@ -482,21 +482,21 @@ class Frame(tk.Frame):
 
         self.mi_cuil_cuit = tk.StringVar()
         self.entry_cuil_cuit = tk.Entry(self,textvariable=self.mi_cuil_cuit)
-        self.entry_cuil_cuit.config(width= 40, font = ("Arial", 10, "bold"))
+        self.entry_cuil_cuit.config(width= 40, font = ("Arial", 10, "bold"), bg="#a5a5a5")
         self.entry_cuil_cuit.grid(row = 1, column = 1)
-        self.entry_cuil_cuit.bind("<Return>", lambda event: self.entry_n_lote.focus_set())        
+        self.entry_cuil_cuit.bind("<Return>", lambda event: self.entry_n_lote.focus_set())
+        self.entry_cuil_cuit.bind("<KeyRelease>", self.buscar_coincidencias_cuil_cuit)  
+
+        # Listbox dinámico para sugerencias
+        self.listbox_cuil_cuit = tk.Listbox(self, height=150)
+        self.listbox_cuil_cuit.bind("<<ListboxSelect>>", self.seleccionar_cuil_cuit)
+        self.listbox_cuil_cuit.place_forget()  # Ocultarlo inicialmente     
         
         self.mi_n_lote = tk.StringVar()
         self.entry_n_lote = tk.Entry(self,textvariable=self.mi_n_lote)
-        self.entry_n_lote.config(width= 40, fg="black", font = ("Arial", 10, "bold"), bg="#a5a5a5")
+        self.entry_n_lote.config(width= 40, fg="black", font = ("Arial", 10, "bold"))
         self.entry_n_lote.grid(row = 1, column = 3)
-        self.entry_n_lote.bind("<Return>", lambda event: self.entry_id_cliente.focus_set())
-        #self.entry_n_lote.bind("<KeyRelease>", self.buscar_coincidencias_listbox_lote)
-
-        # Listbox dinámico para sugerencias
-        self.listbox_n_lote = tk.Listbox(self, height=150)
-        self.listbox_n_lote.bind("<<ListboxSelect>>", self.seleccionar_n_lote)
-        self.listbox_n_lote.place_forget()  # Ocultarlo inicialmente       
+        self.entry_n_lote.bind("<Return>", lambda event: self.entry_id_cliente.focus_set()) 
 
         self.mi_id_cliente = tk.StringVar()
         self.entry_id_cliente = tk.Entry(self,textvariable=self.mi_id_cliente)
@@ -525,17 +525,13 @@ class Frame(tk.Frame):
         self.boton_cerrar_listbox_denominacion.config(fg = "black", bg="#a5a5a5",cursor = "hand2", activebackground= "#7e7e7e")
         self.boton_cerrar_listbox_denominacion.place_forget()
 
-        self.boton_cerrar_listbox_cuil_cuit = tk.Button(self.root, text="CERRAR DEPTO", command=self.ocultar_listbox_departamento, width=12)
-        self.boton_cerrar_listbox_cuil_cuit.config(fg = "black", bg="#a5a5a5",cursor = "hand2", activebackground= "#FFFFFF")
-        self.boton_cerrar_listbox_cuil_cuit.place_forget()
-
         self.boton_cerrar_listbox_n_cuenta = tk.Button(self.root, text="CERRAR EXPTE.", command=self.ocultar_listbox_n_cuenta, width=12)
         self.boton_cerrar_listbox_n_cuenta.config(fg = "black", bg="#a5a5a5",cursor = "hand2", activebackground= "#91855d")
         self.boton_cerrar_listbox_n_cuenta.place_forget()
 
-        self.boton_cerrar_listbox_n_lote = tk.Button(self.root, text="CERRAR LOTE", command=self.ocultar_listbox_n_lote, width=12)
-        self.boton_cerrar_listbox_n_lote.config(fg = "black", bg="#a5a5a5",cursor = "hand2", activebackground= "#c51a00")
-        self.boton_cerrar_listbox_n_lote.place_forget()
+        self.boton_cerrar_listbox_cuil_cuit = tk.Button(self.root, text="CERRAR LOTE", command=self.ocultar_listbox_cuil_cuit, width=12)
+        self.boton_cerrar_listbox_cuil_cuit.config(fg = "black", bg="#a5a5a5",cursor = "hand2", activebackground= "#c51a00")
+        self.boton_cerrar_listbox_cuil_cuit.place_forget()
 
         #Botones Nuevo  
         self.boton_nuevo = tk.Button(self, text = "Nuevo", command = self.habilitar_campos)    
@@ -567,22 +563,24 @@ class Frame(tk.Frame):
 
         self.configurar_eventos_listbox()
 
-        # Crear Listbox y Scrollbar al iniciar la clase n_lote
-        self.listbox_n_lote = tk.Listbox(self, height=150,  bg="#a5a5a5", fg="black", font=("Arial", 10, "bold"))
-        self.scrollbar_n_lote = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.listbox_n_lote.yview)
+        # Crear Listbox y Scrollbar al iniciar la clase cuil_cuit
+        self.listbox_cuil_cuit = tk.Listbox(self, height=150,  bg="#a5a5a5", fg="black", font=("Arial", 10, "bold"))
+        self.scrollbar_cuil_cuit = tk.Scrollbar(self, orient=tk.VERTICAL, command=self.listbox_cuil_cuit.yview)
 
         # Configurar sincronización entre ambos
-        self.listbox_n_lote.config(yscrollcommand=self.scrollbar_n_lote.set)
+        self.listbox_cuil_cuit.config(yscrollcommand=self.scrollbar_cuil_cuit.set)
 
         # Eventos del Listbox
-        self.listbox_n_lote.bind("<Double-Button-1>", self.seleccionar_n_lote)
-        self.listbox_n_lote.bind("<Return>", self.seleccionar_n_lote)
-        self.listbox_n_lote.bind("<Escape>", lambda e: self.ocultar_listbox_n_lote())
-        self.listbox_n_lote.bind("<FocusOut>", lambda e: self.ocultar_listbox_n_lote())
+        self.listbox_cuil_cuit.bind("<Double-Button-1>", self.seleccionar_cuil_cuit)
+        self.listbox_cuil_cuit.bind("<Return>", self.seleccionar_cuil_cuit)
+        self.listbox_cuil_cuit.bind("<Escape>", lambda e: self.ocultar_listbox_cuil_cuit())
+        self.listbox_cuil_cuit.bind("<FocusOut>", lambda e: self.ocultar_listbox_cuil_cuit())
 
         # Ocultarlos por defecto
-        self.listbox_n_lote.place_forget()
-        self.scrollbar_n_lote.place_forget()
+        self.listbox_cuil_cuit.place_forget()
+        self.scrollbar_cuil_cuit.place_forget()
+
+        self.configurar_eventos_listbox_c()
 
         # Crear Listbox y Scrollbar al iniciar la clase
         self.listbox_denominacion = tk.Listbox(self, height=150,  bg="#7ec5ff", fg="#000000", font=("Arial", 10, "bold"))
@@ -601,6 +599,19 @@ class Frame(tk.Frame):
         self.listbox_denominacion.place_forget()
         self.scrollbar_denominacion.place_forget()
 
+        self.configurar_eventos_listbox_d()
+
+    def configurar_eventos_listbox_d(self):
+        # 🔗 Este método lo llamás una vez al iniciar la interfaz
+        self.listbox_denominacion.bind("<Return>", self.seleccionar_denominacion_01)     # Enter
+        self.listbox_denominacion.bind("<Double-Button-1>", self.seleccionar_denominacion_01)  # Doble clic
+        self.listbox_denominacion.bind("<Right>", self.seleccionar_denominacion_01)      # Flecha derecha opcional
+    
+        self.entry_denominacion.bind("<Down>", lambda e: self.listbox_denominacion.focus_set())  # ↓ para entrar al Listbox
+        self.entry_denominacion.bind("<Return>", self.seleccionar_denominacion_01)  # Enter directo desde el Entry
+
+        self.configurar_navegacion()
+
     def configurar_eventos_listbox(self):
         # 🔗 Este método lo llamás una vez al iniciar la interfaz
         self.listbox_n_cuenta.bind("<Return>", self.seleccionar_n_cuenta)     # Enter
@@ -611,6 +622,17 @@ class Frame(tk.Frame):
         self.entry_n_cuenta.bind("<Return>", self.seleccionar_n_cuenta)  # Enter directo desde el Entry
 
         self.configurar_navegacion()
+
+    def configurar_eventos_listbox_c(self):
+        # 🔗 Este método lo llamás una vez al iniciar la interfaz
+        self.listbox_cuil_cuit.bind("<Return>", self.seleccionar_cuil_cuit)     # Enter
+        self.listbox_cuil_cuit.bind("<Double-Button-1>", self.seleccionar_cuil_cuit)  # Doble clic
+        self.listbox_cuil_cuit.bind("<Right>", self.seleccionar_cuil_cuit)      # Flecha derecha opcional
+    
+        self.entry_cuil_cuit.bind("<Down>", lambda e: self.listbox_cuil_cuit.focus_set())  # ↓ para entrar al Listbox
+        self.entry_cuil_cuit.bind("<Return>", self.seleccionar_cuil_cuit)  # Enter directo desde el Entry
+
+        self.configurar_navegacion()    
 
     def buscar_coincidencias_listbox(self, event=None):
         texto = self.mi_n_cuenta.get().strip()
@@ -662,7 +684,6 @@ class Frame(tk.Frame):
 
         except Exception as e:
             print(f"Error al buscar coincidencias: {e}")
-
 
     def seleccionar_n_cuenta(self, event=None):
         seleccion = self.listbox_n_cuenta.curselection()
@@ -724,7 +745,7 @@ class Frame(tk.Frame):
             conn = sqlite3.connect("database/Datcorr.db")
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT denominacion, n_cuenta, n_lote FROM Cuentas_database WHERE denominacion LIKE ? ORDER BY denominacion LIMIT 2000",
+                "SELECT denominacion, n_cuenta, cuil_cuit FROM Cuentas_database WHERE denominacion LIKE ? ORDER BY denominacion LIMIT 2000",
                 (f"%{texto}%",)
             )
             
@@ -732,23 +753,32 @@ class Frame(tk.Frame):
             conn.close()
 
             if resultados:
-                for denominacion, n_cuenta, n_lote in resultados:
-                    item = f"{denominacion} - {n_cuenta} - {n_lote}"
+                for denominacion, n_cuenta, cuil_cuit in resultados:
+                    item = f"{denominacion} - {n_cuenta} - {cuil_cuit}"
                     self.listbox_denominacion.insert(tk.END, item)
 
                 self.update_idletasks()
-                x = self.entry_denominacion.winfo_x() + self.entry_denominacion.winfo_width()
-                y = self.entry_denominacion.winfo_y()
+                #x = self.entry_denominacion.winfo_x() - self.entry_denominacion.winfo_width()
+                #y = self.entry_denominacion.winfo_y()
 
-                ancho_caracteres = 100               
+                x = self.entry_denominacion.winfo_x()
+                y = self.entry_denominacion.winfo_y() + self.entry_denominacion.winfo_height()
+
+
+                ancho_caracteres = 75              
                 self.listbox_denominacion.config(width=ancho_caracteres)                
 
                 self.listbox_denominacion.place(x=x, y=y, height=400)
                 self.scrollbar_denominacion.place(x=x + self.listbox_denominacion.winfo_reqwidth(), y=y, height=400)
-                self.boton_cerrar_listbox_denominacion.place(
-                    x=x + self.listbox_denominacion.winfo_reqwidth() + self.scrollbar_denominacion.winfo_reqwidth() - 500,
-                    y=y
-                )
+            
+                ancho_boton = 100
+                x_centro_listbox = x + (self.listbox_denominacion.winfo_reqwidth() // 2)
+                x_boton = x_centro_listbox - (ancho_boton // 2)
+                y_boton = y
+
+                self.boton_cerrar_listbox_denominacion.place(x=x_boton, y=y_boton)
+
+
                 self.listbox_denominacion.lift()
                 self.scrollbar_denominacion.lift()
                 self.boton_cerrar_listbox_denominacion.lift()
@@ -765,13 +795,13 @@ class Frame(tk.Frame):
 
             # Separar n_cuenta y denominación            
             try:
-                denominacion, n_cuenta, n_lote = item_seleccionado.split(" - ")
+                denominacion, n_cuenta, cuil_cuit = item_seleccionado.split(" - ")
             except ValueError:
                 # Si no hay tres partes, caemos aquí
                 partes = item_seleccionado.split(" - ")
                 denominacion = partes[0].strip()
                 n_cuenta = partes[1].strip() if len(partes) > 1 else ""
-                n_lote     = partes[2].strip() if len(partes) > 2 else ""
+                cuil_cuit     = partes[2].strip() if len(partes) > 2 else ""
 
             self.ocultar_listbox_denominacion()
 
@@ -779,15 +809,15 @@ class Frame(tk.Frame):
             self.entry_denominacion.insert(0, denominacion)
 
             self.mi_denominacion.set(denominacion)
-            self.cargar_datos_por_denominacion(denominacion, n_cuenta, n_lote)
+            self.cargar_datos_por_denominacion(denominacion, n_cuenta, cuil_cuit)
             
-    def cargar_datos_por_denominacion(self, denominacion, n_cuenta, n_lote):
+    def cargar_datos_por_denominacion(self, denominacion, n_cuenta, cuil_cuit):
         try:
             conn = sqlite3.connect("database/Datcorr.db")
             cursor = conn.cursor()
             cursor.execute(
-                """SELECT * FROM Cuentas_database WHERE denominacion = ? AND n_cuenta = ? AND n_lote = ?""", 
-                (denominacion, n_cuenta, n_lote)
+                """SELECT * FROM Cuentas_database WHERE denominacion = ? AND n_cuenta = ? AND cuil_cuit = ?""", 
+                (denominacion, n_cuenta, cuil_cuit)
             )
             datos = cursor.fetchone()
             conn.close()
@@ -805,88 +835,92 @@ class Frame(tk.Frame):
         except Exception as e:
             print(f"Error al cargar datos: {e}")    
 
-    def buscar_coincidencias_listbox_lote(self, event=None):
-        texto = self.mi_n_lote.get().strip()
-        self.listbox_n_lote.delete(0, tk.END)
+        self.entry_id_cliente.focus_set()
+
+    def buscar_coincidencias_cuil_cuit(self, event=None):
+        texto = self.mi_cuil_cuit.get().strip()
+        self.listbox_cuil_cuit.delete(0, tk.END)
 
         if not texto:
-            self.ocultar_listbox_n_lote()
+            self.ocultar_listbox_cuil_cuit()
             return
 
         try:
             conn = sqlite3.connect("database/Datcorr.db")
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT n_lote, denominacion FROM Cuentas_database WHERE n_lote LIKE ? ORDER BY n_lote LIMIT 2000",
+                "SELECT cuil_cuit, denominacion FROM Cuentas_database WHERE cuil_cuit LIKE ? ORDER BY cuil_cuit LIMIT 2000",
                 (f"%{texto}%",)
             )
             resultados = cursor.fetchall()
             conn.close()
 
             if resultados:
-                for n_lote, denominacion in resultados:
-                    item = f"{n_lote} - {denominacion}"
-                    self.listbox_n_lote.insert(tk.END, item)
+                for cuil_cuit, denominacion in resultados:
+                    item = f"{cuil_cuit} - {denominacion}"
+                    self.listbox_cuil_cuit.insert(tk.END, item)
 
                 self.update_idletasks()
 
                 # Obtener coordenadas base del Entry
-                y = self.entry_n_lote.winfo_y()
+                y = self.entry_cuil_cuit.winfo_y()
 
                 # Definir ancho del listbox
                 ancho_caracteres = 100
-                self.listbox_n_lote.config(width=ancho_caracteres)
+                self.listbox_cuil_cuit.config(width=ancho_caracteres)
 
                 # Actualizar tamaño real
                 self.update_idletasks()
 
-                # Calcular posición x hacia la izquierda del Entry
-                x = self.entry_n_lote.winfo_x() - self.listbox_n_lote.winfo_reqwidth() - self.scrollbar_n_lote.winfo_reqwidth() - 5
+                x = self.entry_cuil_cuit.winfo_x() + self.entry_cuil_cuit.winfo_width()
+                y = self.entry_cuil_cuit.winfo_y()
 
-                # Colocar widgets
-                self.listbox_n_lote.place(x=x, y=y, height=400)
-                self.scrollbar_n_lote.place(x=x + self.listbox_n_lote.winfo_reqwidth(), y=y, height=400)
-                self.boton_cerrar_listbox_n_lote.place(
-                    x=x + self.listbox_n_lote.winfo_reqwidth() + self.scrollbar_n_lote.winfo_reqwidth() - 500,
+                ancho_caracteres = 100
+                self.listbox_cuil_cuit.config(width=ancho_caracteres)
+
+                self.listbox_cuil_cuit.place(x=x, y=y, height=400)
+                self.scrollbar_cuil_cuit.place(x=x + self.listbox_cuil_cuit.winfo_reqwidth(), y=y, height=400)
+                self.boton_cerrar_listbox_cuil_cuit.place(
+                    x=x + self.listbox_cuil_cuit.winfo_reqwidth() +  self.scrollbar_cuil_cuit.winfo_reqwidth() - 650,
                     y=y
                 )
 
-                self.listbox_n_lote.lift()
-                self.scrollbar_n_lote.lift()
-                self.boton_cerrar_listbox_n_lote.lift()
+                self.listbox_cuil_cuit.lift()
+                self.scrollbar_cuil_cuit.lift()
+                self.boton_cerrar_listbox_cuil_cuit.lift()
 
             else:
-                self.ocultar_listbox_n_lote()
+                self.ocultar_listbox_cuil_cuit()
 
         except Exception as e:
             print(f"Error al buscar coincidencias: {e}")
 
-    def seleccionar_n_lote(self, event=None):
-        seleccion = self.listbox_n_lote.curselection()
+    def seleccionar_cuil_cuit(self, event=None):
+        seleccion = self.listbox_cuil_cuit.curselection()
         if seleccion:
-            item_seleccionado = self.listbox_n_lote.get(seleccion[0])
+            item_seleccionado = self.listbox_cuil_cuit.get(seleccion[0])
 
             try:
-                n_lote, denominacion = item_seleccionado.split(" - ", 1)
+                cuil_cuit, denominacion = item_seleccionado.split(" - ", 1)
             except ValueError:
-                n_lote = item_seleccionado.strip()
+                cuil_cuit = item_seleccionado.strip()
                 denominacion = ""
 
-            self.ocultar_listbox_n_lote()
+            self.ocultar_listbox_cuil_cuit()
 
-            self.entry_n_lote.delete(0, tk.END)
-            self.entry_n_lote.insert(0, n_lote)
+            self.entry_cuil_cuit.delete(0, tk.END)
+            self.entry_cuil_cuit.insert(0, cuil_cuit)
 
-            self.mi_n_lote.set(n_lote)
-            self.cargar_datos_por_n_lote(n_lote, denominacion)
+            self.mi_cuil_cuit.set(cuil_cuit)
+            self.cargar_datos_por_cuil_cuit(cuil_cuit, denominacion)
 
-    def cargar_datos_por_n_lote(self, n_lote, denominacion):
+    def cargar_datos_por_cuil_cuit(self, cuil_cuit, denominacion):
         try:
             conn = sqlite3.connect("database/Datcorr.db")
             cursor = conn.cursor()
             cursor.execute(
-                "SELECT * FROM Cuentas_database WHERE n_lote = ? AND denominacion = ?",
-                (n_lote, denominacion)
+                "SELECT * FROM Cuentas_database WHERE cuil_cuit = ? AND denominacion = ?",
+                (cuil_cuit, denominacion)
             )
             datos = cursor.fetchone()
             conn.close()
@@ -904,6 +938,8 @@ class Frame(tk.Frame):
         except Exception as e:
             print(f"Error al cargar datos: {e}")
 
+        self.entry_id_cliente.focus_set()
+
     def ocultar_listbox_n_cuenta(self):
         self.listbox_n_cuenta.place_forget()
         self.scrollbar_n_cuenta.place_forget()
@@ -913,22 +949,9 @@ class Frame(tk.Frame):
         self.scrollbar_denominacion.place_forget()
         self.boton_cerrar_listbox_denominacion.place_forget()
 
-        self.listbox_n_lote.place_forget()
-        self.scrollbar_n_lote.place_forget()
-        self.boton_cerrar_listbox_n_lote.place_forget()
-
-    def ocultar_listbox_departamento(self):
-        self.listbox_n_cuenta.place_forget()
-        self.scrollbar_n_cuenta.place_forget()
-        self.boton_cerrar_listbox_n_cuenta.place_forget()
-
-        self.listbox_denominacion.place_forget()
-        self.scrollbar_denominacion.place_forget()
-        self.boton_cerrar_listbox_denominacion.place_forget()
-
-        self.listbox_n_lote.place_forget()
-        self.scrollbar_n_lote.place_forget()
-        self.boton_cerrar_listbox_n_lote.place_forget()
+        self.listbox_cuil_cuit.place_forget()
+        self.scrollbar_cuil_cuit.place_forget()
+        self.boton_cerrar_listbox_cuil_cuit.place_forget()
     
     def ocultar_listbox_denominacion(self):
         self.listbox_n_cuenta.place_forget()
@@ -939,11 +962,11 @@ class Frame(tk.Frame):
         self.scrollbar_denominacion.place_forget()
         self.boton_cerrar_listbox_denominacion.place_forget()
 
-        self.listbox_n_lote.place_forget()
-        self.scrollbar_n_lote.place_forget()
-        self.boton_cerrar_listbox_n_lote.place_forget()
+        self.listbox_cuil_cuit.place_forget()
+        self.scrollbar_cuil_cuit.place_forget()
+        self.boton_cerrar_listbox_cuil_cuit.place_forget()
 
-    def ocultar_listbox_n_lote(self):
+    def ocultar_listbox_cuil_cuit(self):
         self.listbox_n_cuenta.place_forget()
         self.scrollbar_n_cuenta.place_forget()
         self.boton_cerrar_listbox_n_cuenta.place_forget()
@@ -952,9 +975,9 @@ class Frame(tk.Frame):
         self.scrollbar_denominacion.place_forget()
         self.boton_cerrar_listbox_denominacion.place_forget()
 
-        self.listbox_n_lote.place_forget()
-        self.scrollbar_n_lote.place_forget()
-        self.boton_cerrar_listbox_n_lote.place_forget()    
+        self.listbox_cuil_cuit.place_forget()
+        self.scrollbar_cuil_cuit.place_forget()
+        self.boton_cerrar_listbox_cuil_cuit.place_forget()    
 
     def guardar_y_volver(self, event=None):
 
